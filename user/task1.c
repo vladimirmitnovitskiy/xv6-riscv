@@ -26,6 +26,7 @@ main(int argc, char *argv[])
   }
 
   if (id == 0) {
+    pause(10);
     printf("child id = %d\n", getpid());
     pause(100);
     exit(1);
@@ -46,6 +47,6 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  printf("parent: child %d exited, status = %d\n", code, status);
+  printf("child %d exited, status = %d\n", code, status);
   exit(0);
 }
