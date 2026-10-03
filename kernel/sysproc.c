@@ -112,13 +112,13 @@ sys_uptime(void)
 }
 
 uint64
-    sys_ps_listinfo(void)
-    {
-      uint64 plist;
-      int lim;
-    
-      argaddr(0, &plist);
-      argint(1, &lim);
-    
-      return get_ps_listinfo(plist, lim);
-    }
+sys_ps_listinfo(void)
+{
+  uint64 plist;
+  int lim;
+
+  argaddr(0, &plist);
+  argint(1, &lim);
+
+  return get_ps_listinfo(plist, lim);
+}
