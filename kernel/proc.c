@@ -701,6 +701,33 @@ procdump(void)
   }
 }
 
+
+// Extract `procinfo` from `proc`.
+struct procinfo
+proc_info(const struct proc* proc)
+{
+    // INVARIANT: should only be called on the processes from the `proc` array, which are never NULL
+
+    if (proc == NULL) {
+        panic("proc_info: NULL proc");
+    }
+
+    struct procinfo result = {
+        proc->pid,
+        0,
+        proc->state,
+        proc->name
+    };
+
+    struct proc* parent = proc->parent;
+
+    if (parent != NULL) {
+        result.parent_pid = parent->pid;
+    }
+
+    return result;
+}
+
 int get_ps_listinfo(uint64 plist, int lim)
 {
   struct proc *p;
@@ -732,3 +759,4 @@ int get_ps_listinfo(uint64 plist, int lim)
     }
   } 
 }
+
