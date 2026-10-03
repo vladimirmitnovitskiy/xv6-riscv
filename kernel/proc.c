@@ -5,7 +5,6 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
-#include "procinfo.h"
 
 struct cpu cpus[NCPU];
 
@@ -707,8 +706,7 @@ struct procinfo
 proc_info(const struct proc* proc)
 {
     // INVARIANT: should only be called on the processes from the `proc` array, which are never NULL
-
-    if (proc == NULL) {
+    if (proc == 0) {
         panic("proc_info: NULL proc");
     }
 
@@ -716,47 +714,74 @@ proc_info(const struct proc* proc)
         proc->pid,
         0,
         proc->state,
-        proc->name
+        {0}
     };
 
-    struct proc* parent = proc->parent;
+    safestrcpy(result.name, proc->name, sizeof(result.name)); 
 
-    if (parent != NULL) {
+    struct proc* parent = proc->parent;
+    
+    if (parent != 0) {
         result.parent_pid = parent->pid;
     }
-
+    
     return result;
 }
 
+
 int get_ps_listinfo(uint64 plist, int lim)
-{
-  struct proc *p;
-  int count = 0;
-  int copied = 0;
-  struct procinfo info;
-  struct proc *my_p = myproc();
-  
-  if(lim < 0 || plist == 0)
-      return -1;
-  
-  for (p = proc; p < &proc[NPROC]; p++){
-    acquire(&wait_lock);
-    acquire(&p->lock);
+    {
+      struct proc *p;
+      int count = 0;
+      int copied = 0;
+      struct procinfo info;
+      struct proc *my_p = myproc();
+      
+      if(lim < 0 || plist == 0)
+          return -1;
+      
+      for (p = proc; p < &proc[NPROC]; p++){
+        acquire(&wait_lock);
+        acquire(&p->lock);
 
-    if (p->state != UNUSED && p->state != USED) {
-      count++;
+        if (p->state != UNUSED && p->state != USED) {
+          count++;
 
-      if (copied < lim){
-        info.pid  = p->pid;
-        info.state = p->state;
-        safestrcpy(info.name, p->name, sizeof(info.name));
+          if (copied < lim){
+            info = proc_info(p);
+            
+            struct proc *parent = p->parent;
+            release(&p->lock);
 
-        struct proc *parent = p->parent;
+            if (parent){
+              acquire(&parent->lock);
+              info.parent_pid = parent->pid;
+              release(&parent->lock);
+            } else {
+              info.parent_pid = 0;
+            }
+
+            release(&wait_lock);
+
+            
+            uint64 dst = plist + copied * sizeof(struct procinfo);
+            if (copyout(my_p->pagetable, my_p->sz, dst, (char *)&info, sizeof(info)) < 0) {
+              return -1;
+            }
+            
+            copied++;
+            continue;
+          }
+        }
+        
         release(&p->lock);
+        release(&wait_lock);
+      } 
 
-        if (parent)
-      }
+      if (count > lim)
+        return count;
+      
+      return copied;
     }
-  } 
-}
+
 
