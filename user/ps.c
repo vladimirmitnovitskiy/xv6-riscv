@@ -2,26 +2,38 @@
 #include "kernel/procinfo.h"
 #include "user/user.h"
 
-static char *states[] = {
+static char* states[] = {
     "UNUSED", "USED", "SLEEPING", "RUNNABLE", "RUNNING", "ZOMBIE"
 };
 
 int
 main(int argc, char** argv)
 {
-    struct procinfo procs[64] = {0};
-    int total = ps_listinfo(procs, 64);
+    int lim = 10;
+    struct procinfo* procs = malloc(lim * sizeof(struct procinfo));
+    int total = 0;
 
-    if (total < 0) {
-        printf("ps: ps_listinfo failed\n");
-        exit(1);
+    while(1) {
+        total = ps_listinfo(procs, lim);
+
+        if (total < 0) {
+            printf("ps: ps_listinfo failed\n");
+            free(procs);
+            exit(1);
+        }
+
+        if (total > lim) {
+            lim = total;
+            free(procs);
+            procs = malloc(lim * sizeof(struct procinfo));
+        } else {
+            break;
+        }
     }
-
-    int copied = (total > 64) ? 64 : total;
 
     printf("pid\tppid\tstate\t\tname\n");
 
-    for (int i = 0; i < copied; i++) {
+    for (int i = 0; i < total; i++) {
         printf(
             "%d\t%d\t%s\t\t%s\n",
             procs[i].pid,
@@ -31,5 +43,6 @@ main(int argc, char** argv)
         );
     }
 
+    free(procs);
     exit(0);
 }
