@@ -23,6 +23,15 @@ main(void)
   dup(0); // stdout
   dup(0); // stderr
 
+  if(open("null", O_RDWR) < 0)
+    mknod("null", 0);
+  if(open("zero", O_RDWR) < 0)
+      mknod("zero", 1);
+  if(open("nullstat", O_RDWR) < 0)
+      mknod("nullstat", 2);
+  if(open("rtc", O_RDWR) < 0)
+      mknod("rtc", 0);
+
   for (;;) {
     printf("init: starting sh\n");
     pid = fork();
