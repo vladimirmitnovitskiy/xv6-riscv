@@ -3,6 +3,16 @@
 #include "user/user.h"
 #include "kernel/fcntl.h"
 
+void
+print_hex_byte(unsigned char b)
+{
+  char *digits = "0123456789abcdef";
+  // Старшие 4 бита
+  printf("%c", digits[(b >> 4) & 0xF]);
+  // Младшие 4 бита
+  printf("%c", digits[b & 0xF]);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -25,6 +35,7 @@ main(int argc, char *argv[])
 
   char buf[512];
   int total = 0;
+  
   while(total < n){
     int want = n - total;
     if(want > sizeof(buf))
@@ -37,16 +48,19 @@ main(int argc, char *argv[])
       exit(1);
     }
     if(r == 0)
-      break;
+      break; 
 
     for(int i = 0; i < r; i++){
       if(i > 0 || total > 0)
         printf(" ");
-      printf("%02x", (unsigned char)buf[i]);
+      print_hex_byte((unsigned char)buf[i]);
     }
     total += r;
   }
-  printf("\n");
+
+  if(total > 0){
+    printf("\n");
+  }
 
   close(fd);
   exit(0);

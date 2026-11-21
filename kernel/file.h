@@ -39,3 +39,10 @@ struct devsw {
 extern struct devsw devsw[];
 
 #define CONSOLE 1
+#define MEMDEV 3
+#define MEMDEV_NULL 0
+#define MEMDEV_ZERO 1
+#define MEMDEV_NULLSTAT 2
+
+#define RTCDEV 4
+#define RTCDEV_RTC 0

@@ -8,6 +8,8 @@
 #include "kernel/file.h"
 #include "user/user.h"
 #include "kernel/fcntl.h"
+#include "kernel/file.h"
+
 
 char *argv[] = {"sh", 0};
 
@@ -15,6 +17,7 @@ int
 main(void)
 {
   int pid, wpid;
+  struct stat st;
 
   if (open("console", O_RDWR) < 0) {
     mknod("console", CONSOLE, 0);
@@ -23,14 +26,20 @@ main(void)
   dup(0); // stdout
   dup(0); // stderr
 
-  if(open("null", O_RDWR) < 0)
-    mknod("null", 0);
-  if(open("zero", O_RDWR) < 0)
-      mknod("zero", 1);
-  if(open("nullstat", O_RDWR) < 0)
-      mknod("nullstat", 2);
-  if(open("rtc", O_RDWR) < 0)
-      mknod("rtc", 0);
+    
+  
+  if(stat("null", &st) < 0){
+    mknod("null", MEMDEV, MEMDEV_NULL);
+  }
+  if(stat("zero", &st) < 0){
+    mknod("zero", MEMDEV, MEMDEV_ZERO);
+  }
+  if(stat("nullstat", &st) < 0){
+    mknod("nullstat", MEMDEV, MEMDEV_NULLSTAT);
+  }
+  if(stat("rtc", &st) < 0){
+    mknod("rtc", RTCDEV, RTCDEV_RTC);
+  }
 
   for (;;) {
     printf("init: starting sh\n");
