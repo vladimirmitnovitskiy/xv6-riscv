@@ -39,3 +39,9 @@ struct devsw {
 extern struct devsw devsw[];
 
 #define CONSOLE 1
+#define MEMDEV  2 // pseudo-devices: null, zero, nullstat
+
+// minor device numbers for MEMDEV
+#define MEMDEV_NULL     0
+#define MEMDEV_ZERO     1
+#define MEMDEV_NULLSTAT 2

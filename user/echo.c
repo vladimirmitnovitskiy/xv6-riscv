@@ -2,17 +2,26 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
+static void
+put(char *s, int n)
+{
+  if (write(1, s, n) != n) {
+    fprintf(2, "echo: write error\n");
+    exit(1);
+  }
+}
+
 int
 main(int argc, char *argv[])
 {
   int i;
 
   for (i = 1; i < argc; i++) {
-    write(1, argv[i], strlen(argv[i]));
+    put(argv[i], strlen(argv[i]));
     if (i + 1 < argc) {
-      write(1, " ", 1);
+      put(" ", 1);
     } else {
-      write(1, "\n", 1);
+      put("\n", 1);
     }
   }
   exit(0);
