@@ -7,9 +7,9 @@ void
 print_hex_byte(unsigned char b)
 {
   char *digits = "0123456789abcdef";
-  // Старшие 4 бита
+  
   printf("%c", digits[(b >> 4) & 0xF]);
-  // Младшие 4 бита
+  
   printf("%c", digits[b & 0xF]);
 }
 
@@ -48,7 +48,7 @@ main(int argc, char *argv[])
       exit(1);
     }
     if(r == 0)
-      break; 
+      break;
 
     for(int i = 0; i < r; i++){
       if(i > 0 || total > 0)
