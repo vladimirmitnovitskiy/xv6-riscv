@@ -8,7 +8,6 @@
 #include "kernel/file.h"
 #include "user/user.h"
 #include "kernel/fcntl.h"
-#include "kernel/file.h"
 
 
 char *argv[] = {"sh", 0};
@@ -37,9 +36,10 @@ main(void)
   if(stat("nullstat", &st) < 0){
     mknod("nullstat", MEMDEV, MEMDEV_NULLSTAT);
   }
-  if(stat("rtc", &st) < 0){
-    mknod("rtc", RTCDEV, RTCDEV_RTC);
-  }
+  // TODO(C): enable once RTCDEV/RTCDEV_RTC are defined in kernel/file.h
+  // if(stat("rtc", &st) < 0){
+  //   mknod("rtc", RTCDEV, RTCDEV_RTC);
+  // }
 
   for (;;) {
     printf("init: starting sh\n");
