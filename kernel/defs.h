@@ -35,7 +35,6 @@ int             fileread(struct file*, uint64, int n);
 int             filestat(struct file*, uint64 addr);
 int             filewrite(struct file*, uint64, int n);
 
-// memdev.c
 void            memdevinit(void);
 
 // fs.c

@@ -1,12 +1,3 @@
-//
-// Pseudo-devices sharing one major number (MEMDEV):
-//   null     (minor 0) -- read: end of file; write: data discarded.
-//   zero     (minor 1) -- read: zero bytes; write: error.
-//   nullstat (minor 2) -- write: data discarded, but the byte count
-//                         is accumulated; read: exactly sizeof(uint64)
-//                         bytes giving the total written since boot.
-//
-
 #include "types.h"
 #include "param.h"
 #include "spinlock.h"
@@ -16,14 +7,11 @@
 #include "riscv.h"
 #include "defs.h"
 
-// several processes may write nullstat at once on different harts;
-// the lock makes each "+= n" (a load and a store) atomic.
 static struct {
   struct spinlock lock;
-  uint64 written; // total bytes written to nullstat
+  uint64 written;
 } nullstat;
 
-// fill [dst, dst+n) with zero bytes.
 static int
 zeroread(int user_dst, uint64 dst, int n)
 {

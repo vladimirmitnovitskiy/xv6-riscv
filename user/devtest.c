@@ -1,6 +1,3 @@
-// devtest: check the null, zero and nullstat devices,
-// including concurrent access from several processes.
-
 #include "kernel/types.h"
 #include "kernel/fcntl.h"
 #include "user/user.h"
@@ -50,13 +47,11 @@ main(void)
   uint64 before, after, prev, v;
   int fd, i, j, pid, st, ok;
 
-  // null
   fd = openx("null", O_RDWR);
   check(read(fd, buf, sizeof(buf)) == 0, "null: read returns EOF");
   check(write(fd, buf, sizeof(buf)) == sizeof(buf), "null: write succeeds");
   close(fd);
 
-  // zero
   fd = openx("zero", O_RDWR);
   memset(buf, 0xaa, sizeof(buf));
   ok = read(fd, buf, sizeof(buf)) == sizeof(buf);
@@ -66,7 +61,6 @@ main(void)
   check(write(fd, buf, 1) < 0, "zero: write fails");
   close(fd);
 
-  // nullstat
   fd = openx("nullstat", O_RDWR);
   check(read(fd, buf, 4) < 0, "nullstat: 4-byte read fails");
   check(read(fd, buf, 16) < 0, "nullstat: 16-byte read fails");
@@ -75,9 +69,6 @@ main(void)
   check(nullstat() - before == 10, "nullstat: write is counted");
   close(fd);
 
-  // NPROC writers at once, plus a reader checking that the
-  // total only grows. a lost update would make the final
-  // total come out short.
   before = nullstat();
   for (i = 0; i < NPROC + 1; i++) {
     if ((pid = fork()) < 0) {
@@ -85,7 +76,7 @@ main(void)
       exit(1);
     }
     if (pid == 0) {
-      if (i == NPROC) { // reader
+      if (i == NPROC) {
         for (j = 0, prev = 0; j < NWRITES; j++) {
           if ((v = nullstat()) < prev)
             exit(2);
